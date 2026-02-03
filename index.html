@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindIt – A Lost & Found Web Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <header id="main-header" style="display: none;">
+        <div class="logo-container">
+            <img src="logo.png" alt="FindIt Logo" class="logo-img"> 
+            <span class="logo-text">FindIt</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showSection('home')">Home</a></li>
+                <li><a href="#" onclick="openModal('modal-lost')">Report Lost</a></li>
+                <li><a href="#" onclick="openModal('modal-found')">Report Found</a></li>
+                <li><a href="#" onclick="showSection('profile')">Profile</a></li>
+            </ul>
+        </nav>
+        
+        <div class="karma-badge-header" title="Your Karma Points">
+            🏆 <span id="header-karma">0</span>
+        </div>
+
+        <button class="btn-signout" onclick="handleLogout()">Sign Out</button>
+    </header>
+
+    <main id="app">
+
+        <section id="auth-section" class="active-section">
+            <div class="auth-container">
+                <div class="auth-left">
+                    <div class="auth-brand">
+                        <img src="logo.png" alt="FindIt Logo" class="logo-img-large">
+                        <h2>FindIt</h2>
+                    </div>
+                    <h1>Lost something? Let's find it together!</h1>
+                    <p>Sign in or sign up to access our college's community-driven lost and found portal.</p>
+                </div>
+                <div class="auth-right">
+                    <div class="auth-toggle">
+                        <span id="auth-toggle-text">Have an account?</span>
+                        <button class="btn-outline" onclick="toggleAuthMode()">SIGN IN</button>
+                    </div>
+                    
+                    <div class="auth-form-container">
+                        <h2 id="auth-title">Create your FindIt Account</h2>
+                        <form id="auth-form">
+                            <div id="signup-fields">
+                                <div class="input-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="inp-name" placeholder="Enter Full Name">
+                                </div>
+                                <div class="input-group">
+                                    <label>College ID</label>
+                                    <input type="text" id="inp-id" placeholder="Enter Registration No.">
+                                </div>
+                                <div class="input-group">
+                                    <label>Phone Number</label>
+                                    <input type="tel" id="inp-phone" placeholder="Enter Mobile Number">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Email</label>
+                                <input type="email" id="inp-email" placeholder="Enter Email">
+                            </div>
+                            <div class="input-group">
+                                <label>Password</label>
+                                <input type="password" id="inp-pass" placeholder="Create Password">
+                            </div>
+                            <button type="button" class="btn-submit" id="auth-btn-action" onclick="handleAuthAction()">Create Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-section" class="hidden-section">
+            <div class="hero-container">
+                <div class="hero-left">
+                    <h1>Efficiently connecting people with their lost belongings.</h1>
+                    <p>The easiest way to report and find items across campus.</p>
+                </div>
+                <div class="hero-right">
+                    <div class="action-hub">
+                        <h2>What have you lost?</h2>
+                        <input type="text" id="home-search" class="search-bar" placeholder="Search for items (e.g. Watch, Umbrella)..." onkeyup="handleSearchKey(event)">
+                        
+                        <div class="button-row">
+                            <button class="btn-action btn-lost" onclick="openModal('modal-lost')">Report Lost</button>
+                            <button class="btn-action btn-found" onclick="openModal('modal-found')">Report Found</button>
+                        </div>
+                        
+                        <button class="btn-wide btn-unidentified" onclick="searchUnidentified()">Browse Unidentified Items</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="unidentified-section" class="hidden-section">
+            <div class="page-header">
+                <h2>Unidentified Items</h2>
+                <p>Items reported found but not yet claimed by anyone.</p>
+                <button class="btn-back" onclick="showSection('home')">← Back to Home</button>
+            </div>
+            
+            <div class="items-grid" id="unidentified-grid">
+                </div>
+            <p id="no-results-msg" style="display:none; text-align:center; color:#666; margin-top:20px;">No items match your search.</p>
+        </section>
+
+        <section id="profile-section" class="hidden-section">
+            <div class="profile-top">
+                <div class="profile-card">
+                    <div class="avatar-circle">👤</div>
+                    <div class="user-info">
+                        <h2 id="profile-name">Guest User</h2>
+                        <p id="profile-email">Please Sign In</p>
+                        <p id="profile-phone" style="display:none"></p>
+                        <div class="karma-pill">
+                            🏆 Karma Points: <span id="profile-karma">0</span>
+                        </div>
+                    </div>
+                    <button class="btn-edit-profile">Edit Profile</button>
+                </div>
+            </div>
+            
+            <div class="profile-bottom">
+                <div class="tabs">
+                    <button class="tab-btn active-tab" onclick="switchProfileTab('lost')">My Lost Reports</button>
+                    <button class="tab-btn" onclick="switchProfileTab('found')">My Found Reports</button>
+                </div>
+                
+                <div id="container-lost" class="items-list">
+                    <p class="empty-msg">No items reported lost yet.</p>
+                </div>
+
+                <div id="container-found" class="items-list" style="display:none;">
+                    <p class="empty-msg">No items reported found yet.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-lost" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Lost Item</h3>
+                <span class="close-btn" onclick="closeModal('modal-lost')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label>Item Name</label><input type="text" id="lost-name" placeholder="e.g. Blue Backpack">
+                <label>Date Lost</label><input type="date" id="lost-date">
+                <label>Location</label><input type="text" id="lost-loc" placeholder="Where was it lost?">
+                <label>Upload Image (Optional)</label><input type="file" class="file-input">
+                <label>Description</label><textarea rows="3" id="lost-desc" placeholder="Any specific marks..."></textarea>
+                <button class="btn-submit-modal theme-btn" onclick="submitReport('lost')">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-found" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Found Item</h3>
+                <span class="close-btn" onclick="closeModal('modal-found')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label>Item Name</label><input type="text" id="found-name" placeholder="e.g. Black Wallet">
+                <label>Date Found</label><input type="date" id="found-date">
+                <label>Location</label><input type="text" id="found-loc" placeholder="Where did you find it?">
+                <label>Upload Image (Required) *</label><input type="file" class="file-input" id="found-img-input" onchange="checkImageUpload()">
+                <small style="color: red; font-size: 0.8rem;">Image is mandatory.</small>
+                <label>Description</label><textarea rows="3" id="found-desc" placeholder="Describe the item..."></textarea>
+                <button class="btn-submit-modal theme-btn" id="btn-found-submit" disabled onclick="submitReport('found')">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-view" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Item Details</h3>
+                <span class="close-btn" onclick="closeModal('modal-view')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="view-thumb" class="item-thumb" style="margin: 0 auto 1rem; width: 80px; height: 80px; font-size: 2.5rem; background:#eee;"></div>
+                <h2 id="view-name" style="text-align:center; margin-bottom:0.5rem;">Item Name</h2>
+                <span id="view-status" class="status-badge" style="display:table; margin: 0 auto 1rem;">Status</span>
+                
+                <p><strong>Date:</strong> <span id="view-date"></span></p>
+                <p><strong>Posted:</strong> <span id="view-posted" style="color: #666; font-size: 0.9em;"></span></p>
+                <p><strong>Location:</strong> <span id="view-loc"></span></p>
+                <p style="margin-top:10px;"><strong>Description:</strong></p>
+                <div id="view-desc"></div>
+
+                <div id="claim-section-wrapper" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; display: none;">
+                    <button id="btn-claim-item" class="btn-claim" onclick="showClaimDetails()">Claim This Item</button>
+                    
+                    <div id="claim-contact-info" class="claim-box" style="display: none;">
+                        <h4>Finder Contact Details</h4>
+                        <p><strong>Name:</strong> <span id="finder-name"></span></p>
+                        <p><strong>Email:</strong> <span id="finder-email"></span></p>
+                        <p><strong>Phone:</strong> <span id="finder-phone"></span></p>
+                        <small style="display:block; margin-top:5px; margin-bottom:10px; color:#666;">Please contact to verify ownership.</small>
+                        
+                        <button class="btn-resolve" onclick="confirmResolution()">✅ I have received this item</button>
+                    </div>
+                </div>
+
+                <div id="resolved-info" class="resolved-box" style="display: none;">
+                    <h4 style="color: #2e7d32; margin-bottom:10px;">🎉 Item Successfully Returned!</h4>
+                    <div class="res-grid">
+                        <div class="res-col">
+                            <small>Finder:</small>
+                            <strong id="res-finder"></strong>
+                        </div>
+                        <div class="res-col">
+                            <small>Receiver:</small>
+                            <strong id="res-receiver"></strong>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="current-view-id" value="">
+    <input type="hidden" id="current-view-type" value="">
+
+    <script src="script.js"></script>
+</body>
+</html>
